@@ -1,19 +1,43 @@
-
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 def kali():
   print ('kali')
   
 # Define a neural network YOUR ROLL NUMBER (all small letters) should prefix the classname
-class YourRollNumberNN(nn.Module):
-  pass
+class cs19b014NN(nn.Module, model_type, loader_size, config=None):
+  super().__init__()
+
+  self.linear_relu_stack = nn.Sequential(
+    # nn.Linear(28*28, 512),
+    # nn.ReLU(),
+    # nn.Linear(512, 512),
+    # nn.ReLU(),
+    # nn.Linear(512, 10),
+    if model_type === 1:
+      for i in range(len(config)):
+          nn.Conv2d(config[i][0], config[i][1], config[i][2], stride=config[i][3], padding=config[i][4])
+          nn.ReLu();
+          nn.MaxPool2d(2, 2)
+      )
+    else:
+      nn.Conv2d(loader_size[1], 16, 5)
+      nn.Conv2d(16, 50, 5)
+      nn.Conv2d(50, , 5)
+      nn.ReLu()
+
+
   # ... your code ...
   # ... write init and forward functions appropriately ...
     
 # sample invocation torch.hub.load(myrepo,'get_model',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
 def get_model(train_data_loader=None, n_epochs=10):
-  model = None
+  train_features, train_labels = next(iter(train_data_loader))
+  loader_size = train_features.size()
+  model = cs19b014NN(0, loader_size)
+
+
 
   # write your code here as per instructions
   # ... your code ...
@@ -66,4 +90,3 @@ def test_model(model1=None, test_data_loader=None):
   print ('Returning metrics... (rollnumber: xx)')
   
   return accuracy_val, precision_val, recall_val, f1score_val
-
