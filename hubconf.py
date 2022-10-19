@@ -10,6 +10,8 @@ class cs19b014NN(nn.Module):
   def __init__(self, model_type, loader_size, classes, config=None):
     super(cs19b014NN, self).__init__()
     self.classes = classes
+    self.model_type = model_type
+
     if model_type == 0:
       self.linear_relu_stack = nn.Sequential(
         
@@ -29,6 +31,10 @@ class cs19b014NN(nn.Module):
         logits = self.linear_relu_stack(x)
         x = torch.flatten(x, 1)
         x = F.relu(nn.Linear(len(x), self.classess))
+        if model_type == 0:
+          return x
+
+        
         return x
 
   # ... your code ...
@@ -105,12 +111,21 @@ def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
 def test_model(model1=None, test_data_loader=None):
 
   accuracy_val, precision_val, recall_val, f1score_val = 0, 0, 0, 0
-  # write your code here as per instructions
-  # ... your code ...
-  # ... your code ...
-  # ... and so on ...
-  # calculate accuracy, precision, recall and f1score
+  size = len(test_data_loader.dataset)
+  num_batches = len(test_data_loader)
+  test_loss, correct = 0, 0
+
+  with torch.no_grad():
+      for X, y in test_data_loader:
+          pred = model1(X)
+          test_loss += loss_fn(pred, y).item()
+          correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+
+  test_loss /= num_batches
+  correct /= size
+  accuracy_val = 100*correct
+  print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
   
-  print ('Returning metrics... (rollnumber: xx)')
+  print ('Returning metrics... (rollnumber: 14)')
   
   return accuracy_val, precision_val, recall_val, f1score_val
