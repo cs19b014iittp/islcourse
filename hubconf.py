@@ -6,25 +6,24 @@ def kali():
   print ('kali')
   
 # Define a neural network YOUR ROLL NUMBER (all small letters) should prefix the classname
-class cs19b014NN(nn.Module, model_type, loader_size, classes, config=None):
-  def __init__(self):
-    super().__init__()
+class cs19b014NN(nn.Module):
+  def __init__(self, model_type, loader_size, classes, config=None):
+    super(cs19b014NN, self).__init__()
     self.classes = classes
-    self.linear_relu_stack = nn.Sequential(
-      if model_type === 1:
-        for i in range(len(config)):
-            nn.Conv2d(config[i][0], config[i][1], config[i][2], stride=config[i][3], padding=config[i][4])
-            nn.ReLu();
-            nn.MaxPool2d(2, 2)
-      else:
-        nn.Conv2d(loader_size[1], 16, 5)
-        nn.ReLu()
-        nn.MaxPool2d(2,2)
-        nn.Conv2d(16, 50, 5)
-        nn.ReLu()
-        nn.MaxPool2d(2,2)
+    if model_type == 0:
+      self.linear_relu_stack = nn.Sequential(
         
-    )
+          # for i in range(len(config)):
+          #     nn.Conv2d(config[i][0], config[i][1], config[i][2], stride=config[i][3], padding=config[i][4]),
+          #     nn.ReLu(),
+          #     nn.MaxPool2d(2, 2),
+          nn.Conv2d(loader_size[1], 16, 5),
+          nn.ReLu(),
+          nn.MaxPool2d(2,2),
+          nn.Conv2d(16, 50, 5),
+          nn.ReLu(),
+          nn.MaxPool2d(2,2)
+      )
 
     def forward(self, x):
         logits = self.linear_relu_stack(x)
@@ -98,25 +97,6 @@ def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
         loss.backward()
         optimizer.step()
 
-  # write your code here as per instructions
-  # ... your code ...
-  # ... your code ...
-  # ... and so on ...
-  # Use softmax and cross entropy loss functions
-  # set model variable to proper object, make use of train_data
-  
-  # In addition,
-  # Refer to config dict, where learning rate is given, 
-  # List of (in_channels, out_channels, kernel_size, stride=1, padding='same')  are specified
-  # Example, config = [(1,10,(3,3),1,'same'), (10,3,(5,5),1,'same'), (3,1,(7,7),1,'same')], it can have any number of elements
-  # You need to create 2d convoution layers as per specification above in each element
-  # You need to add a proper fully connected layer as the last layer
-  
-  # HINT: You can print sizes of tensors to get an idea of the size of the fc layer required
-  # HINT: Flatten function can also be used if required
-  # return model
-  
-  
   print ('Returning model... (rollnumber: 14)')
   
   return model
