@@ -11,14 +11,11 @@ class cs19b014NN(nn.Module):
     super(cs19b014NN, self).__init__()
     self.classes = classes
     self.model_type = model_type
+    self.config = config
+    self.loader_size = loader_size
 
     if model_type == 0:
       self.linear_relu_stack = nn.Sequential(
-        
-          # for i in range(len(config)):
-          #     nn.Conv2d(config[i][0], config[i][1], config[i][2], stride=config[i][3], padding=config[i][4]),
-          #     nn.ReLu(),
-          #     nn.MaxPool2d(2, 2),
           nn.Conv2d(loader_size[1], 16, 5),
           nn.ReLu(),
           nn.MaxPool2d(2,2),
@@ -30,10 +27,16 @@ class cs19b014NN(nn.Module):
     def forward(self, x):
         logits = self.linear_relu_stack(x)
         x = torch.flatten(x, 1)
-        x = F.relu(nn.Linear(len(x), self.classess))
+        x = F.relu(nn.Linear(len(x), self.classess)(x))
         if model_type == 0:
           return x
-
+        else:
+          for i in range(len(config)):
+              x = nn.Conv2d(config[i][0], config[i][1], config[i][2], stride=config[i][3], padding=config[i][4])(x)
+              x = nn.ReLu()(x)
+              x = nn.MaxPool2d(2, 2)(x)
+              x = torch.flatten(x, 1)
+              x = F.relu(nn.Linear(len(x), self.classess)(x))
         
         return x
 
