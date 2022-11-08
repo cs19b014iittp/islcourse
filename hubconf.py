@@ -123,8 +123,4 @@ def test_model(model1=None, test_data_loader=None):
   print("precision:", precision_val)
   print("recal    :", recall_val)
   print("f1score  :", f1score_val)
-
-config = [(1, 5, (2, 5), 1, 'same'), (5, 4, (2, 3), 1, 'same'), (4, 5, (2, 1), 1, 'same'), (5, 3, (7, 6), 1, 'same'), (3, 2, (7, 5), 1, 'same'), (2, 2, (6, 6), 1, 'same')]
-model = get_model_advanced(train_dataloader, n_epochs=15, lr=0.0001, config=config)
-
-test_model(model, test_dataloader)
+  return accuracy_val, precision_val, recall_val, f1score_val
