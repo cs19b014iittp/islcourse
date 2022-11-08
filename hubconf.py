@@ -1,134 +1,130 @@
 import torch
 from torch import nn
-import torch.nn.functional as F
+from torch.utils.data import DataLoader
+from torchvision import datasets
+from torchvision.transforms import ToTensor
+import numpy as np
+from sklearn.metrics import classification_report
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
+import warnings
+from collections import OrderedDict
+warnings.filterwarnings('ignore')
 
-def kali():
-  print ('kali')
-  
-# Define a neural network YOUR ROLL NUMBER (all small letters) should prefix the classname
+training_data = datasets.FashionMNIST(
+    root="data",
+    train=True,
+    download=True,
+    transform=ToTensor(),
+)
+
+test_data = datasets.FashionMNIST(
+    root="data",
+    train=False,
+    download=True,
+    transform=ToTensor(),
+)
+
+batch_size = 64
+
+train_dataloader = DataLoader(training_data, batch_size=batch_size)
+test_dataloader = DataLoader(test_data, batch_size=batch_size)
+
+for X, y in test_dataloader:
+    print(f"Shape of X [N, C, H, W]: {X.shape}")
+    print(f"Shape of y: {y.shape} {y.dtype}")
+    break
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
 class cs19b014NN(nn.Module):
-  def __init__(self, model_type, loader_size, classes, config=None):
-    super(cs19b014NN, self).__init__()
-    self.classes = classes
-    self.model_type = model_type
-    self.config = config
-    self.loader_size = loader_size
+    def __init__(self, image_size, classes, config):
+        super().__init__()
+        self.config = config
+        layers = []
+        image_length = image_size[0]
+        image_height = image_size[1]
+        for i in range(len(self.config)):
+          layers.append(("conv"+str(i), (nn.Conv2d(config[i][0], config[i][1], config[i][2], stride=config[i][3], padding=config[i][4]))))
+          if config[i][4] != 'same':
+            image_length = (image_size - config[i][2][0] + 2*config[i][4]) / config[i][3]
+            image_height = (image_size - config[i][2][1] + 2*config[i][4]) / config[i][3]
 
-    if model_type == 0:
-      self.linear_relu_stack = nn.Sequential(
-          nn.Conv2d(loader_size[1], 16, 5),
-          nn.ReLu(),
-          nn.MaxPool2d(2,2),
-          nn.Conv2d(16, 50, 5),
-          nn.ReLu(),
-          nn.MaxPool2d(2,2)
-      )
+        print(f"size of tensor after passing through convolutional layers: ({image_length}, {image_height})")
+        self.conv_layers = nn.Sequential(OrderedDict(layers))
+        self.flatten = nn.Flatten()
+        self.linear1 = nn.Linear(image_height*image_length*config[-1][1], 100)
+        self.linear2 = nn.Linear(100, 100)
+        self.linear3 = nn.Linear(100, classes)
+        self.softmax = nn.Softmax()
 
     def forward(self, x):
-        logits = self.linear_relu_stack(x)
-        x = torch.flatten(x, 1)
-        x = F.relu(nn.Linear(len(x), self.classess)(x))
-        if model_type == 0:
-          return x
-        else:
-          for i in range(len(config)):
-              x = nn.Conv2d(config[i][0], config[i][1], config[i][2], stride=config[i][3], padding=config[i][4])(x)
-              x = nn.ReLu()(x)
-              x = nn.MaxPool2d(2, 2)(x)
-              x = torch.flatten(x, 1)
-              x = F.relu(nn.Linear(len(x), self.classess)(x))
-        
-        return x
+        x = self.conv_layers(x)
+        x = self.flatten(x)
+        x = self.linear1(x)
+        x = self.linear2(x)
+        x = self.linear3(x)
+        pred_probab = self.softmax(x)
+        return pred_probab
 
-  # ... your code ...
-  # ... write init and forward functions appropriately ...
-    
-# sample invocation torch.hub.load(myrepo,'get_model',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
-def get_model(train_data_loader=None, n_epochs=10):
-  train_features, train_labels = next(iter(train_data_loader))
-  loader_size = train_features.size()
-  classes=None
-  for X, y in dataloader:
-    classes = len(y)
-    break
-  model = cs19b014NN(0, loader_size, classes)
+def loss_fn(pred, y):
+  one_hot = torch.nn.functional.one_hot(y, 10)
 
-  loss_fn = nn.CrossEntropyLoss()
-  optimizer = torch.optim.SGD(model.parameters())
-
-  for epoch in range(n_epochs):
-    for batch, (X, y) in enumerate(train_data_loader):
-        # Compute prediction and loss
-        pred_ = model(X)
-        softmax = nn.Softmax(dim=1)
-        pred = softmax(pred_)
-        loss = loss_fn(pred, y)
-
-        # Backpropagation
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-  # write your code here as per instructions
-  # ... your code ...
-  # ... your code ...
-  # ... and so on ...
-  # Use softmax and cross entropy loss functions
-  # set model variable to proper object, make use of train_data
+  log = torch.log(pred)
+  mult = -torch.mul(one_hot, log)
   
-  print ('Returning model... (rollnumber: 14)')
-  
-  return model
+  return torch.div(torch.sum(mult), len(y))
 
-# sample invocation torch.hub.load(myrepo,'get_model_advanced',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
 def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
-  train_features, train_labels = next(iter(train_data_loader))
-  loader_size = train_features.size()
-  classes=None
-  for X, y in dataloader:
-    classes = len(y)
+  classes=len(train_data_loader.dataset.classes)
+  image_size = None
+  for X, y in train_data_loader:
+    image_size = (X.size()[2], X.size()[3])
     break
-  model = cs19b014NN(1, loader_size, classes, config=config)
 
-  loss_fn = nn.CrossEntropyLoss()
-  optimizer = torch.optim.SGD(model.parameters())
+  model = cs19b014NN(image_size, classes, config=config).to(device)
+  optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
   for epoch in range(n_epochs):
     for batch, (X, y) in enumerate(train_data_loader):
-        # Compute prediction and loss
-        pred_ = model(X)
-        softmax = nn.Softmax(dim=1)
-        pred = softmax(pred_)
-        loss = loss_fn(pred, y)
+      X, y = X.to(device), y.to(device)
 
-        # Backpropagation
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+      pred = model(X)
+      loss = loss_fn(pred, y)
 
-  print ('Returning model... (rollnumber: 14)')
+      optimizer.zero_grad()
+      loss.backward()
+      optimizer.step()
   
   return model
 
-# sample invocation torch.hub.load(myrepo,'test_model',model1=model,test_data_loader=test_data_loader,force_reload=True)
 def test_model(model1=None, test_data_loader=None):
-
+  model1 = model1.to(device)
   accuracy_val, precision_val, recall_val, f1score_val = 0, 0, 0, 0
   size = len(test_data_loader.dataset)
   num_batches = len(test_data_loader)
   test_loss, correct = 0, 0
 
+  y_pred = []
+  y_true = []
+
   with torch.no_grad():
       for X, y in test_data_loader:
-          pred = model1(X)
-          test_loss += loss_fn(pred, y).item()
-          correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+        X, y = X.to(device), y.to(device)
+        pred = model1(X)
 
-  test_loss /= num_batches
-  correct /= size
-  accuracy_val = 100*correct
-  print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
-  
-  print ('Returning metrics... (rollnumber: 14)')
-  
-  return accuracy_val, precision_val, recall_val, f1score_val
+        y_true.extend(y.cpu().numpy())
+        y_pred.extend(pred.argmax(axis=1).cpu().numpy())
+
+  accuracy_val = accuracy_score(y_true, y_pred)
+  precision_val = precision_score(y_true, y_pred, average='macro')
+  recall_val = recall_score(y_true, y_pred, average='macro')
+  f1score_val = f1_score(y_true, y_pred, average='macro')
+
+  print(f"accuracy : {(100*accuracy_val):>0.1f}%")
+  print("precision:", precision_val)
+  print("recal    :", recall_val)
+  print("f1score  :", f1score_val)
+
+config = [(1, 5, (2, 5), 1, 'same'), (5, 4, (2, 3), 1, 'same'), (4, 5, (2, 1), 1, 'same'), (5, 3, (7, 6), 1, 'same'), (3, 2, (7, 5), 1, 'same'), (2, 2, (6, 6), 1, 'same')]
+model = get_model_advanced(train_dataloader, n_epochs=15, lr=0.0001, config=config)
+
+test_model(model, test_dataloader)
