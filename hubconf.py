@@ -74,7 +74,8 @@ def loss_fn(pred, y):
   return torch.div(torch.sum(mult), len(y))
 
 def get_model_advanced(train_data_loader=None, n_epochs=10,lr=1e-4,config=None):
-  classes=len(train_data_loader.dataset.classes)
+#   classes=len(train_data_loader.dataset.classes)
+  classes = 10
   image_size = None
   for X, y in train_data_loader:
     image_size = (X.size()[2], X.size()[3])
