@@ -9,6 +9,8 @@ from sklearn.metrics.cluster import v_measure_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score
+import numpy as np
+from sklearn.model_selection import GridSearchCV
 
 # You can import whatever standard packages are required
 
@@ -100,7 +102,7 @@ def get_metrics(model1=None,X=None,y=None):
 def get_paramgrid_lr():
   # you need to return parameter grid dictionary for use in grid search cv
   # penalty: l1 or l2
-  lr_param_grid = None
+  lr_param_grid = {"C":np.logspace(-4,4,7), "penalty":["l1","l2"]}
   # refer to sklearn documentation on grid search and logistic regression
   # write your code here...
   return lr_param_grid
@@ -110,7 +112,11 @@ def get_paramgrid_rf():
   # n_estimators: 1, 10, 100
   # criterion: gini, entropy
   # maximum depth: 1, 10, None  
-  rf_param_grid = None
+  rf_param_grid = { 
+    'n_estimators': [1, 10, 100],
+    'max_depth' : [1,10,None],
+    'criterion' :['gini', 'entropy']
+  }
   # refer to sklearn documentation on grid search and random forest classifier
   # write your code here...
   return rf_param_grid
@@ -122,8 +128,8 @@ def perform_gridsearch_cv_multimetric(model=None, param_grid=None, cv=5, X=None,
   # the cv parameter can change, ie number of folds  
   
   # metrics = [] the evaluation program can change what metrics to choose
-  
-  grid_search_cv = None
+  grid_search_cv = GridSearchCV(model, param_grid = param_grid, scoring=metrics, cv=cv)
+  grid_search_cv.fit(X, y)
   # create a grid search cv object
   # fit the object on X and y input above
   # write your code here...
@@ -133,7 +139,7 @@ def perform_gridsearch_cv_multimetric(model=None, param_grid=None, cv=5, X=None,
   # refer to cv_results_ dictonary
   # return top 1 score for each of the metrics given, in the order given in metrics=... list
   
-  top1_scores = []
+  top1_scores = grid_search_cv.best_score_
   
   return top1_scores
 
