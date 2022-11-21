@@ -12,6 +12,8 @@ from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_sc
 import numpy as np
 from sklearn.model_selection import GridSearchCV
 import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
 
 # You can import whatever standard packages are required
 
@@ -198,17 +200,19 @@ def get_mynn(inp_dim=64,hid_dim=13,num_classes=10):
 def get_mnist_tensor():
   # download sklearn mnist
   # convert to tensor
-  X, y = None, None
+  X,y = load_digits(return_X_y=True)
+  X, y = torch.from_numpy(X), torch.from_numpy(y)
   # write your code
   return X,y
 
-def get_loss_on_single_point(mynn=None,x0,y0):
+def get_loss_on_single_point(mynn,x0,y0):
   y_pred, xencdec = mynn(x0)
   lossval = mynn.loss_fn(x0,y0,y_pred,xencdec)
   # the lossval should have grad_fn attribute set
+  lossval.requires_grad_(True)
   return lossval
 
-def train_combined_encdec_predictor(mynn=None,X,y, epochs=11):
+def train_combined_encdec_predictor(mynn,X,y, epochs=11):
   # X, y are provided as tensor
   # perform training on the entire data set (no batches etc.)
   # for each epoch, update weights
@@ -220,18 +224,6 @@ def train_combined_encdec_predictor(mynn=None,X,y, epochs=11):
     ypred, Xencdec = mynn(X)
     lval = mynn.loss_fn(X,y,ypred,Xencdec)
     lval.backward()
-    optimzer.step()
+    optimizer.step()
     
   return mynn
-    
-
-
-
-
-  
-  
-  
-  
-
-
-
