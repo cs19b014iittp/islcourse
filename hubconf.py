@@ -2,6 +2,8 @@
 import torch
 from torch import nn
 import torch.optim as optim
+from sklearn.datasets import make_blobs, make_circles, load_digits
+from sklearn.cluster import KMeans
 
 # You can import whatever standard packages are required
 
@@ -12,43 +14,45 @@ import torch.optim as optim
 ###### PART 1 ######
 
 def get_data_blobs(n_points=100):
-  pass
+  # pass
   # write your code here
   # Refer to sklearn data sets
-  X, y = None
+  X, y = make_blobs(n_points, centers=5)
   # write your code ...
   return X,y
 
 def get_data_circles(n_points=100):
-  pass
+  # pass
   # write your code here
   # Refer to sklearn data sets
-  X, y = None
+  X, y = make_circles(n_points)
   # write your code ...
   return X,y
 
 def get_data_mnist():
-  pass
+  # pass
   # write your code here
   # Refer to sklearn data sets
-  X,y = None
+  X,y = load_digits(return_X_y=True)
   # write your code ...
   return X,y
 
 def build_kmeans(X=None,k=10):
-  pass
+  # pass
   # k is a variable, calling function can give a different number
   # Refer to sklearn KMeans method
-  km = None # this is the KMeans object
+  km = KMeans(k)
+  km.fit(X) 
+  # this is the KMeans object
   # write your code ...
   return km
 
 def assign_kmeans(km=None,X=None):
-  pass
+  # pass
   # For each of the points in X, assign one of the means
   # refer to predict() function of the KMeans in sklearn
   # write your code ...
-  ypred = None
+  ypred = km.predict(X)
   return ypred
 
 def compare_clusterings(ypred_1=None,ypred_2=None):
@@ -171,27 +175,27 @@ def get_mnist_tensor():
   # write your code
   return X,y
 
-def get_loss_on_single_point(mynn=None,x0,y0):
-  y_pred, xencdec = mynn(x0)
-  lossval = mynn.loss_fn(x0,y0,y_pred,xencdec)
-  # the lossval should have grad_fn attribute set
-  return lossval
+# def get_loss_on_single_point(mynn=None,x0,y0):
+#   y_pred, xencdec = mynn(x0)
+#   lossval = mynn.loss_fn(x0,y0,y_pred,xencdec)
+#   # the lossval should have grad_fn attribute set
+#   return lossval
 
-def train_combined_encdec_predictor(mynn=None,X,y, epochs=11):
-  # X, y are provided as tensor
-  # perform training on the entire data set (no batches etc.)
-  # for each epoch, update weights
+# def train_combined_encdec_predictor(mynn=None,X,y, epochs=11):
+#   # X, y are provided as tensor
+#   # perform training on the entire data set (no batches etc.)
+#   # for each epoch, update weights
   
-  optimizer = optim.SGD(mynn.parameters(), lr=0.01)
+#   optimizer = optim.SGD(mynn.parameters(), lr=0.01)
   
-  for i in range(epochs):
-    optimizer.zero_grad()
-    ypred, Xencdec = mynn(X)
-    lval = mynn.loss_fn(X,y,ypred,Xencdec)
-    lval.backward()
-    optimzer.step()
+#   for i in range(epochs):
+#     optimizer.zero_grad()
+#     ypred, Xencdec = mynn(X)
+#     lval = mynn.loss_fn(X,y,ypred,Xencdec)
+#     lval.backward()
+#     optimzer.step()
     
-  return mynn
+#   return mynn
     
 
 
