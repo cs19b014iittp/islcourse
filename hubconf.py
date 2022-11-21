@@ -105,7 +105,7 @@ def get_metrics(model1=None,X=None,y=None):
 def get_paramgrid_lr():
   # you need to return parameter grid dictionary for use in grid search cv
   # penalty: l1 or l2
-  lr_param_grid = {"C":np.logspace(-4,4,7), "penalty":["l2","None"]}
+  lr_param_grid = {"C":np.logspace(-4,4,7), "penalty":["l1","l2"]}
   # refer to sklearn documentation on grid search and logistic regression
   # write your code here...
   return lr_param_grid
@@ -143,8 +143,11 @@ def perform_gridsearch_cv_multimetric(model=None, param_grid=None, cv=5, X=None,
   # return top 1 score for each of the metrics given, in the order given in metrics=... list
   
   cv_results = pd.DataFrame.from_dict(grid_search_cv.cv_results_)
-  print(grid_search_cv.cv_results_)
-  print(type(grid_search_cv.cv_results_))
+  # print(grid_search_cv.cv_results_)
+  cv_results = pd.DataFrame.from_dict(gs.cv_results_)
+  print(cv_results)
+  df = cv_results[['params', 'mean_test_ACCURACY', 'rank_test_ACCURACY', 'mean_test_ROC_AUC', 'rank_test_ROC_AUC']]
+  # print(type(grid_search_cv.cv_results_))
   top1_scores = grid_search_cv.best_score_
   
   return top1_scores
@@ -153,17 +156,19 @@ def perform_gridsearch_cv_multimetric(model=None, param_grid=None, cv=5, X=None,
 
 class MyNN(nn.Module):
   def __init__(self,inp_dim=64,hid_dim=13,num_classes=10):
-    super(MyNN,self)
+    super().__init__()
+    # super(MyNN,self)
     
     self.fc_encoder = nn.Linear(inp_dim, hid_dim) # write your code inp_dim to hid_dim mapper
     self.fc_decoder = nn.Linear(hid_dim, inp_dim) # write your code hid_dim to inp_dim mapper
-    self.fc_classifier = nn.Linear(hid, num_classes) # write your code to map hid_dim to num_classes
+    self.fc_classifier = nn.Linear(hid_dim, num_classes) # write your code to map hid_dim to num_classes
     
-    self.relu = None #write your code - relu object
-    self.softmax = None #write your code - softmax object
+    self.relu = nn.ReLU() #write your code - relu object
+    self.softmax = nn.Softmax() #write your code - softmax object
+    self.flatten = nn.Flatten()
     
   def forward(self,x):
-    x = None # write your code - flatten x
+    # x = self.flatten(x) # write your code - flatten x
     x_enc = self.fc_encoder(x)
     x_enc = self.relu(x_enc)
     
@@ -179,7 +184,7 @@ class MyNN(nn.Module):
     
     # class prediction loss
     # yground needs to be one hot encoded - write your code
-    one_hot = torch.nn.functional.one_hot(yground, len(yground.unique()))
+    one_hot = torch.nn.functional.one_hot(yground, 10)
     log = torch.log(y_pred)
     mult = -torch.mul(one_hot, log)
 
