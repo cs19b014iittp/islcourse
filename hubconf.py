@@ -143,7 +143,6 @@ def perform_gridsearch_cv_multimetric(model1=None, param_grid=None, cv=5, X=None
   # return top 1 score for each of the metrics given, in the order given in metrics=... list
   
   cv_results = pd.DataFrame.from_dict(grid_search_cv.cv_results_)
-  cv_results = pd.DataFrame.from_dict(gs.cv_results_)
   # print(cv_results)
   df = cv_results[['params', 'mean_test_Accuracy', 'rank_test_Accuracy', 'mean_test_AUC', 'rank_test_AUC']]
   top_accuracy = df.loc[df['rank_test_Accuracy']==1]['mean_test_Accuracy'].iloc[0]
