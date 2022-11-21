@@ -4,6 +4,10 @@ from torch import nn
 import torch.optim as optim
 from sklearn.datasets import make_blobs, make_circles, load_digits
 from sklearn.cluster import KMeans
+from sklearn.metrics import homogeneity_score, completeness_score
+from sklearn.metrics.cluster import v_measure_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 
 # You can import whatever standard packages are required
 
@@ -56,23 +60,25 @@ def assign_kmeans(km=None,X=None):
   return ypred
 
 def compare_clusterings(ypred_1=None,ypred_2=None):
-  pass
+  # pass
   # refer to sklearn documentation for homogeneity, completeness and vscore
-  h,c,v = 0,0,0 # you need to write your code to find proper values
+  h,c,v = homogeneity_score(ypred_1, ypred_2), completeness_score(ypred_1, ypred_2), v_measure_score(ypred_1, ypred_2) # you need to write your code to find proper values
   return h,c,v
 
 ###### PART 2 ######
 
 def build_lr_model(X=None, y=None):
-  pass
-  lr_model = None
+  # pass
+  lr_model = LogisticRegression(fit_intercept=False)
+  lr_model.fit(X,y)
   # write your code...
   # Build logistic regression, refer to sklearn
   return lr_model
 
 def build_rf_model(X=None, y=None):
-  pass
-  rf_model = None
+  # pass
+  rf_model = RandomForestClassifier(n_estimators=200, max_depth=2, random_state=0)
+  rf_model.fit(X,y)
   # write your code...
   # Build Random Forest classifier, refer to sklearn
   return rf_model
