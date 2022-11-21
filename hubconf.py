@@ -183,7 +183,7 @@ class MyNN(nn.Module):
     log = torch.log(y_pred)
     mult = -torch.mul(one_hot, log)
 
-    lc1 = torch.div(torch.sum(mult), len(y)) # write your code for cross entropy between yground and y_pred, advised to use torch.mean()
+    lc1 = torch.div(torch.sum(mult), len(y_pred)) # write your code for cross entropy between yground and y_pred, advised to use torch.mean()
     
     # auto encoding loss
     lc2 = torch.mean((x - xencdec)**2)
