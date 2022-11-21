@@ -88,7 +88,11 @@ def get_metrics(model=None,X=None,y=None):
   # pass
   # Obtain accuracy, precision, recall, f1score, auc score - refer to sklearn metrics
   y_pred = model.predict(X)
-  acc, prec, rec, f1, auc = accuracy_score(y, y_pred), precision_score(y, y_pred, average='macro'), recall_score(y, y_pred, average='macro'), f1_score(y, y_pred, average='macro'), roc_auc_score(y, y_pred, multi_class='ovr')
+  acc = accuracy_score(y, y_pred)
+  prec = precision_score(y, y_pred, average='macro')
+  rec = recall_score(y, y_pred, average='macro')
+  f1 = f1_score(y, y_pred, average='macro')
+  auc = roc_auc_score(y, model.predict_proba(X), multi_class='ovr')
 
   # write your code here...
   return acc, prec, rec, f1, auc
