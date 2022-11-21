@@ -10,7 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score
 import numpy as np
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, cross_validate
 import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
@@ -141,15 +141,9 @@ def perform_gridsearch_cv_multimetric(model1=None, param_grid=None, cv=5, X=None
   
   # refer to cv_results_ dictonary
   # return top 1 score for each of the metrics given, in the order given in metrics=... list
+  cv_results = cross_validate(model1, X, y, cv=cv)
   
-  cv_results = pd.DataFrame.from_dict(grid_search_cv.cv_results_)
-  cv_results = pd.DataFrame.from_dict(gs.cv_results_)
-  # print(cv_results)
-  df = cv_results[['params', 'mean_test_Accuracy', 'rank_test_Accuracy', 'mean_test_AUC', 'rank_test_AUC']]
-  top_accuracy = df.loc[df['rank_test_Accuracy']==1]['mean_test_Accuracy'].iloc[0]
-  top_auc = df.loc[df['rank_test_AUC']==1]['mean_test_AUC'].iloc[0]
-  
-  top1_scores = top_accuracy, top_auc
+  top1_scores = cv_results['test_score']
   
   return top1_scores
 
