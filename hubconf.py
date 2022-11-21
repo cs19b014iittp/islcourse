@@ -131,7 +131,7 @@ def perform_gridsearch_cv_multimetric(model1=None, param_grid=None, cv=5, X=None
   # the cv parameter can change, ie number of folds  
   
   # metrics = [] the evaluation program can change what metrics to choose
-  grid_search_cv = GridSearchCV(model, param_grid = param_grid, scoring=metrics, refit='accuracy',cv=cv,return_train_score=True)
+  grid_search_cv = GridSearchCV(model1, param_grid = param_grid, scoring=metrics, refit='accuracy',cv=cv,return_train_score=True)
   grid_search_cv.fit(X, y)
   # create a grid search cv object
   # fit the object on X and y input above
