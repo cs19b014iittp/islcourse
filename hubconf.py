@@ -8,6 +8,7 @@ from sklearn.metrics import homogeneity_score, completeness_score
 from sklearn.metrics.cluster import v_measure_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score
 
 # You can import whatever standard packages are required
 
@@ -84,9 +85,11 @@ def build_rf_model(X=None, y=None):
   return rf_model
 
 def get_metrics(model=None,X=None,y=None):
-  pass
+  # pass
   # Obtain accuracy, precision, recall, f1score, auc score - refer to sklearn metrics
-  acc, prec, rec, f1, auc = 0,0,0,0,0
+  y_pred = model.predict(X)
+  acc, prec, rec, f1, auc = accuracy_score(y, y_pred), precision_score(y, y_pred, average='macro'), recall_score(y, y_pred, average='macro'), f1_score(y, y_pred, average='macro'), roc_auc_score(y, y_pred, multi_class='ovr')
+
   # write your code here...
   return acc, prec, rec, f1, auc
 
