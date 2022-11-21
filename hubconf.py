@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score
 import numpy as np
 from sklearn.model_selection import GridSearchCV
+import pandas as pd
 
 # You can import whatever standard packages are required
 
@@ -102,7 +103,7 @@ def get_metrics(model1=None,X=None,y=None):
 def get_paramgrid_lr():
   # you need to return parameter grid dictionary for use in grid search cv
   # penalty: l1 or l2
-  lr_param_grid = {"C":np.logspace(-4,4,7), "penalty":["l1","l2"]}
+  lr_param_grid = {"C":np.logspace(-4,4,7), "penalty":["l2","None"]}
   # refer to sklearn documentation on grid search and logistic regression
   # write your code here...
   return lr_param_grid
@@ -128,7 +129,7 @@ def perform_gridsearch_cv_multimetric(model=None, param_grid=None, cv=5, X=None,
   # the cv parameter can change, ie number of folds  
   
   # metrics = [] the evaluation program can change what metrics to choose
-  grid_search_cv = GridSearchCV(model, param_grid = param_grid, scoring=metrics, cv=cv)
+  grid_search_cv = GridSearchCV(model, param_grid = param_grid, scoring=metrics, refit='accuracy',cv=cv,return_train_score=True)
   grid_search_cv.fit(X, y)
   # create a grid search cv object
   # fit the object on X and y input above
@@ -139,6 +140,9 @@ def perform_gridsearch_cv_multimetric(model=None, param_grid=None, cv=5, X=None,
   # refer to cv_results_ dictonary
   # return top 1 score for each of the metrics given, in the order given in metrics=... list
   
+  cv_results = pd.DataFrame.from_dict(grid_search_cv.cv_results_)
+  print(grid_search_cv.cv_results_)
+  print(type(grid_search_cv.cv_results_))
   top1_scores = grid_search_cv.best_score_
   
   return top1_scores
@@ -149,9 +153,9 @@ class MyNN(nn.Module):
   def __init__(self,inp_dim=64,hid_dim=13,num_classes=10):
     super(MyNN,self)
     
-    self.fc_encoder = None # write your code inp_dim to hid_dim mapper
-    self.fc_decoder = None # write your code hid_dim to inp_dim mapper
-    self.fc_classifier = None # write your code to map hid_dim to num_classes
+    self.fc_encoder = nn.Linear(inp_dim, hid_dim) # write your code inp_dim to hid_dim mapper
+    self.fc_decoder = nn.Linear(hid_dim, inp_dim) # write your code hid_dim to inp_dim mapper
+    self.fc_classifier = nn.Linear(hid, num_classes) # write your code to map hid_dim to num_classes
     
     self.relu = None #write your code - relu object
     self.softmax = None #write your code - softmax object
@@ -173,7 +177,11 @@ class MyNN(nn.Module):
     
     # class prediction loss
     # yground needs to be one hot encoded - write your code
-    lc1 = None # write your code for cross entropy between yground and y_pred, advised to use torch.mean()
+    one_hot = torch.nn.functional.one_hot(yground, len(yground.unique()))
+    log = torch.log(y_pred)
+    mult = -torch.mul(one_hot, log)
+
+    lc1 = torch.div(torch.sum(mult), len(y)) # write your code for cross entropy between yground and y_pred, advised to use torch.mean()
     
     # auto encoding loss
     lc2 = torch.mean((x - xencdec)**2)
@@ -194,27 +202,27 @@ def get_mnist_tensor():
   # write your code
   return X,y
 
-# def get_loss_on_single_point(mynn=None,x0,y0):
-#   y_pred, xencdec = mynn(x0)
-#   lossval = mynn.loss_fn(x0,y0,y_pred,xencdec)
-#   # the lossval should have grad_fn attribute set
-#   return lossval
+def get_loss_on_single_point(mynn=None,x0,y0):
+  y_pred, xencdec = mynn(x0)
+  lossval = mynn.loss_fn(x0,y0,y_pred,xencdec)
+  # the lossval should have grad_fn attribute set
+  return lossval
 
-# def train_combined_encdec_predictor(mynn=None,X,y, epochs=11):
-#   # X, y are provided as tensor
-#   # perform training on the entire data set (no batches etc.)
-#   # for each epoch, update weights
+def train_combined_encdec_predictor(mynn=None,X,y, epochs=11):
+  # X, y are provided as tensor
+  # perform training on the entire data set (no batches etc.)
+  # for each epoch, update weights
   
-#   optimizer = optim.SGD(mynn.parameters(), lr=0.01)
+  optimizer = optim.SGD(mynn.parameters(), lr=0.01)
   
-#   for i in range(epochs):
-#     optimizer.zero_grad()
-#     ypred, Xencdec = mynn(X)
-#     lval = mynn.loss_fn(X,y,ypred,Xencdec)
-#     lval.backward()
-#     optimzer.step()
+  for i in range(epochs):
+    optimizer.zero_grad()
+    ypred, Xencdec = mynn(X)
+    lval = mynn.loss_fn(X,y,ypred,Xencdec)
+    lval.backward()
+    optimzer.step()
     
-#   return mynn
+  return mynn
     
 
 
